@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>snake</title>
+        <style>
+            body { background: #111; color: #fff; font-family: Arial; text-align: center;}
+            canvas{ background: #000; border: 3px solid tomato;}
+
+        </style>
+    </head>
+    <body>
+        <h1>snake</h1>
+        <p>score: <span id="s">0</span>| Arrow keys se chala</p>
+        <canvas id="c" width="400" height="400"></canvas>
+        
+    <script>
+        const c = document.getElementById("c").getContext("2d");
+        let snake = [{x:10,y:10}], dir = {x:1,y:0}, food = {x:5,y:5}, score = 0;
+
+        document.addEventListener("keydown", e => {
+            if (e.key=="ArrowUp" && dir.y!=1) dir={x:0,y:-1};
+            if (e.key=="ArrowDown" && dir.y!=-1) dir={x:0,y:1};
+            if (e.key=="ArrowLeft" && dir.x==1) dir={x:-1,y:0};
+            if (e.key=="ArrowRight" && dir.x==-1) dir={x:1,y:0};
+        });
+
+        function game() {
+            const head = {x: snake[0].x+dir.x,y: snake[0].y+dir.y};
+            if (head.x<0||head.y<0||head.x>=20||head.y>20||snake.some(p=>p.x==head.x&&p.y==head.y)) {
+                snake=[{x:10,y:10}]; dir={x:1,y:0}; score=0;
+                document.getElementById("s").textContent = score;
+                return;
+            }
+            snake.unshift(head);
+            if(head.x==food.x && head.y==food.y) {
+              score++;
+              document.getElementById("s").textContent = score;
+              food = {x:Math.floor(Math.random()*20), y:Math.floor(Math.random()*20)};
+            } else snake.pop();
+
+        c.fillStyle="#000"; c.fillRect(0,0,400,400);
+        c.fillStyle="red"; c.fillRect(food.x*20, food.y*20,18,18);
+        c.fillStyle="lime";
+        snake.forEach(p => c.fillRect(p.x*20, p.y*20,18,18));
+        }
+        setInterval(game, 120);
+    </script>
+    </body>
+</html>
