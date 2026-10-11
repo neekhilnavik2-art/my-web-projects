@@ -1,1 +1,3 @@
 # my-web-projects
+Snake game (HTML, CSS , JavaScript)
+Live: https://neekhilnavik2-art.github.io/my-web-projects/index.html
