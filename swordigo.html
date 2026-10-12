@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Mini Swordigo</title>
+        <style>
+            body{background: #111;color: #fff;font-family: Arial;text-align: center;}
+            canvas{background: #87ceeb;border: 3px solid tomato}
+        </style>
+    </head>
+    <body>
+        <h1>Mini Swordigo</h1>
+        <canvas id="c" width="800" height="400"></canvas>
+        <script>
+            const c = document.getElementById("c").getContext("2d");
+            const keys = {};
+            document.addEventListener("keydown", e => { keys[e.key]= true;});
+            document.addEventListener("keyup",e => { keys[e.key]= false;});
+            
+            const plats = [
+                {x:0,y:360,w:800,h:40},
+                {x:150,y:290,w:120,h:15},
+                {x:350,y:230,w:120,h:15},
+                {x:560,y:290,w:140,h:15}
+            ];
+            
+            let p = {x:50,y:300,w:24,h:36,vx:0,vy:0,ground:false};
+
+            let enemies = [
+            
+                {x:400,y:324,w:28,h:36,dir:1,a:300,b:700,hp:2},
+                {x:580,y:254,w:28,h:36,dir:1,a:560,b:672,hp:2}
+            ];
+            
+            let hp = 5,atk = 0, inv = 0;
+            let face = 1;
+            function reset() {
+                p.x=50; p.y=300, p.vx=0;p.vy=0;
+                hp = 5;inv=0;
+            }
+            
+            function update() {
+                p.vx =0;
+                if (atk > 0)atk--;
+                if (inv > 0)inv--;
+                if (keys.ArrowLeft) {p.vx=-3; face = -1;}
+                if (keys.ArrowRight) {p.vx=3; face = 1;}
+                if(keys.ArrowUp && p.ground) p.vy=-11;
+                if(keys[" "] && atk ==0){
+                    atk=12;
+                    const s = {x: face==1 ? p.x+p.w : p.x-30,y:p.y+8,w:30,h:16};
+                    enemies.forEach(e => {
+                        if (s.x < e.x+e.w && s.x+s.w > e.x && s.y+s.h > e.y) {
+                            e.hp--; e.x += face*30;
+                        }
+                    });
+                    enemies = enemies.filter(e => e.hp > 0);
+                }
+
+                p.vy +=0.5;
+                p.x +=p.vx;
+                p.y +=p.vy;
+                p.ground=false;
+
+                plats.forEach(q => {
+                    const oldBottom =p.y+p.h-p.vy;
+                    if (p.x+p.w >q.x && p.x < q.x+q.w && p.vy >=0 &&
+                        oldBottom <= q.y+1 && p.y+p.h >=q.y) {
+                        p.y = q.y-p.h;
+                        p.vy=0;
+                        p.ground=true;
+                    }
+                });
+                enemies.forEach(e => {
+                    e.x += e.dir;
+                    if (e.x < e.a || e.x > e.b) e.dir *= -1;
+                    if (p.x < e.x+e.w && p.x+p.w > e.x && p.y+p.h > e.y && inv == 0) {
+                        hp--;inv=60;
+                    }
+                });
+                if (hp<= 0) reset();
+                if(p.y>420) reset();
+            }
+            
+            function circle (x,y,r,color){
+                c.fillStyle = color;
+                c.beginPath();
+                c.arc(x,y,r,0,Math.PI*2);
+                c.fill();
+            }
+
+            function draw() {
+                c.clearRect(0,0,800,400);
+                c.fillStyle = "#222";
+                c.fillStyle= "#4a3";
+                plats.forEach(q => c.fillRect(q.x,q.y,q.w,q.h));
+                //body
+                c.fillStyle="#2a4bd7";
+                c.fillRect(p.x+4,p.y+14,16,18);
+                //sir
+                circle(p.x+12,p.y+8,8,"#ffcc99");
+                //baal/topi
+                c.fillstyle = "#5a3a1a";
+                c.fillRect(p.x4,p.y,16,5);
+                //aankh (jis taraf dekh raha hai)
+                circle(p.x+12+face*3,p.y+8,1.5,"#000");
+                //pair
+                
+                c.fillRect(p.x+4,p.y+32,6,4);
+                c.fillRect(p.x+14, p.y+32,6,4);
+                plats.forEach(q=> c.fillRect(q.x,q.y,q.w,q.h));
+                c.fillStyle="red";
+                enemies.forEach(e => {
+                    circle(e.x+14,e.y+20,14,"#c0392b");
+                    circle(e.x+8, e.y+16,3,"#fff");
+                    circle(e.x+20,e.y+16,3,"#fff");
+                    circle(e.x+8,e.y+16,1.2,"#000");
+                    circle(e.x+20,e.y+16,1.2,"#000");
+                    c.fillStyle="#000";
+                    c.fillRect(e.x+17,e.y+10,6,2);
+                });
+                
+                if (atk > 0) {
+                    c.fillStyle="silver";
+                    c.fillRect(face==1 ? p.x+p.w : p.x-30,p.y+8,30,8);
+                }
+               if (enemies.length==0)
+               c.fillText("jeet gaya!",330,60);
+                c.fillStyle = "#000";
+                c.font = "20px Arial";
+                c.fillText("HP:" + hp,10,25);
+            }
+            function loop() {
+                update();
+                draw();
+                requestAnimationFrame(loop);
+            }
+            loop();
+        </script>
+    </body>
+</html>
